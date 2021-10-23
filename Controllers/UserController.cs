@@ -24,7 +24,7 @@ namespace volvo_backend.Controllers
             var list = new List<RouteModel>();
             while (reader.Read())
             {
-                list.Add ( new RouteModel
+                list.Add(new RouteModel
                 {
                     Id = reader.GetInt32("route_id"),
                     Img = reader.GetString("route_img"),
@@ -32,10 +32,11 @@ namespace volvo_backend.Controllers
                     Title = reader.GetString("route_name"),
                     Description = reader.GetString("route_description"),
                     UseCount = reader.GetInt32("route_visited"),
-                    LastUsedAtTS = ((DateTimeOffset)reader.GetMySqlDateTime("route_last_date").Value)
+                    LastUsedAtTS = ((DateTimeOffset) reader.GetMySqlDateTime("route_last_date").Value)
                         .ToUnixTimeSeconds().ToString()
                 });
             }
+
             return list;
         }
 
@@ -45,8 +46,9 @@ namespace volvo_backend.Controllers
             var result = new List<UserInfo>();
             var dbase = new DBManager();
             var reader = dbase.GetReader(new MySqlCommand(
-                "select usertable.full_name,usertable.Img,usertable.user_id,T.score from usertable " +
-                "right join (select * from userstats order by score limit 10) AS T on usertable.user_id=T.user_id"));
+                "select usertable.full_name,usertable.Img,usertable.user_id,T.score from usertable" +
+                " right join (select * from userstats order by score limit 10) AS T" +
+                " on usertable.user_id=T.user_id order by T.score DESC"));
             while (reader.Read())
             {
                 result.Add(new UserInfo

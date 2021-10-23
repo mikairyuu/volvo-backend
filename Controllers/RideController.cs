@@ -38,7 +38,7 @@ namespace volvo_backend.Controllers
         {
             var dbase = new DBManager();
             var cmd = new MySqlCommand("DELETE FROM eventuser WHERE route_id=@route_id AND user_id=@user_id;" +
-                                       "UPDATE userstats SET score=score+(SELECT distance FROM routetable WHERE route_id=@route_id) " +
+                                       "UPDATE userstats SET score=score+(SELECT route_distance FROM routetable WHERE route_id=@route_id) " +
                                        "WHERE user_id=@user_id");
             cmd.Parameters.AddWithValue("@route_id", routeId);
             cmd.Parameters.AddWithValue("@user_id", userId);
