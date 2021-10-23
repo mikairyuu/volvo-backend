@@ -11,7 +11,7 @@ namespace volvo_backend.Controllers
     [Route("ride")]
     public class RideController : ControllerBase
     {
-        [HttpGet("join")]
+        [HttpPost("join")]
         public ActionResult<Ride> JoinRideById([FromQuery(Name = "RideId")] int rideId, [FromQuery(Name = "UserId")] int userId)
         {
             var ride = new Ride();
