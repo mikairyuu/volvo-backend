@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace volvo_backend.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("user")]
     public class UserController : ControllerBase
     {
         

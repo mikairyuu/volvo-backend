@@ -8,7 +8,7 @@ using volvo_backend.Utils;
 namespace volvo_backend.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("ride")]
     public class RideController : ControllerBase
     {
         [HttpGet("get")]
@@ -42,6 +42,13 @@ namespace volvo_backend.Controllers
                 };
             dbase.CloseConnection();
             return ride;
+        }
+
+        [HttpPost("create")]
+        public ActionResult<Ride> GetRideById([Bind("RideId")] RideApplication ride)
+        {
+            //TODO
+            return NotFound();
         }
     }
 }

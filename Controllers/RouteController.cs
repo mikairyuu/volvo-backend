@@ -9,7 +9,7 @@ using volvo_backend.Utils;
 namespace volvo_backend.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("route")]
     public class RouteController : ControllerBase
     {
         [HttpGet("get/all")]
