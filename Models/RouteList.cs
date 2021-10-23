@@ -15,6 +15,7 @@ namespace volvo_backend.Models
         public int Distance  { get; set; }
         public string Title  { get; set; }
         public string Description  { get; set; }
+        public int UseCount  { get; set; }
         public string LastUsedAtTS  { get; set; }
     }
 
