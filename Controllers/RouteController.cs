@@ -12,6 +12,28 @@ namespace volvo_backend.Controllers
     [Route("route")]
     public class RouteController : ControllerBase
     {
+        [HttpGet("get")]
+        public ActionResult<RouteModel> GetRoute([FromQuery(Name = "RouteId")] int routeId)
+        {
+            var dbase = new DBManager();
+            var cmd = new MySqlCommand("select * from routetable where route_id=@routeId");
+            cmd.Parameters.AddWithValue("@routeId", routeId);
+            var reader = dbase.GetReader(cmd);
+            var routeModel = new RouteModel
+            {
+                Id = reader.GetInt32("route_id"),
+                Img = reader.GetString("route_img"),
+                Distance = reader.GetInt32("route_distance"),
+                Title = reader.GetString("route_name"),
+                Description = reader.GetString("route_description"),
+                UseCount = reader.GetInt32("route_visited"),
+                LastUsedAtTS = ((DateTimeOffset) reader.GetMySqlDateTime("route_last_date").Value)
+                    .ToUnixTimeSeconds().ToString()
+            };
+            return routeModel;
+        }
+
+
         [HttpGet("get/all")]
         public ActionResult<RouteLists> GetAllRoutes()
         {

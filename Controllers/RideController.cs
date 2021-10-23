@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
-using System;
 using volvo_backend.Models;
 using volvo_backend.Utils;
 
@@ -11,31 +10,21 @@ namespace volvo_backend.Controllers
     public class RideController : ControllerBase
     {
         [HttpPost("join")]
-        public ActionResult<RouteModel> JoinRideById([FromQuery(Name = "RideId")] int routeId, [FromQuery(Name = "UserId")] int userId)
+        public ActionResult JoinRideById([FromQuery(Name = "RouteId")] int routeId,
+            [FromQuery(Name = "UserId")] int userId)
         {
             RouteModel ride = null;
             var dbase = new DBManager();
-            var cmd = new MySqlCommand("$SELECT * FROM eventuser where user_id = @id;");
+            var cmd = new MySqlCommand($"SELECT * FROM eventuser where user_id = @id;");
             cmd.Parameters.AddWithValue("@id", userId);
             var reader = dbase.GetReader(cmd);
-            if (reader.Read()) return null;
+            if (reader.Read()) { dbase.CloseConnection(); return null; }
             dbase.CloseReader();
             cmd = new MySqlCommand(
-                $"select * from routetable where route_id =  @id;" +
                 $"update routetable Set route_visited =route_visited+1 where route_id = @id ;");
             cmd.Parameters.AddWithValue("@id", routeId);
             reader = dbase.GetReader(cmd);
             if (!reader.Read()) return BadRequest();
-            ride = new RouteModel()
-            {
-                Id = reader.GetInt32("route_id"),
-                Img = reader.GetString("route_img"),
-                Distance = reader.GetInt32("route_distance"),
-                Title = reader.GetString("route_name"),
-                Description = reader.GetString("route_description"),
-                LastUsedAtTS = ((DateTimeOffset)reader.GetMySqlDateTime("route_last_date").Value)
-                   .ToUnixTimeSeconds().ToString()
-            };
             dbase.CloseReader();
             cmd = new MySqlCommand(
                 $"INSERT INTO eventuser(user_id, route_id) VALUES (@user_id,@route_id);");
@@ -43,9 +32,35 @@ namespace volvo_backend.Controllers
             cmd.Parameters.AddWithValue("@user_id", userId);
             dbase.InsertCommand(cmd);
             dbase.CloseConnection();
-            return ride;
-
+            return Ok();
         }
 
+        [HttpPost("done")]
+        public ActionResult MarkRideDone([FromQuery(Name = "RouteId")] int routeId,
+            [FromQuery(Name = "UserId")] int userId)
+        {
+            var dbase = new DBManager();
+            var cmd = new MySqlCommand("DELETE FROM eventuser WHERE route_id=@route_id AND user_id=@user_id;" +
+                                       "UPDATE userstats SET score=score+(SELECT distance FROM routetable WHERE route_id=@route_id) " +
+                                       "WHERE user_id=@user_id");
+            cmd.Parameters.AddWithValue("@route_id", routeId);
+            cmd.Parameters.AddWithValue("@user_id", userId);
+            dbase.InsertCommand(cmd);
+            dbase.CloseConnection();
+            return Ok();
+        }
+
+        [HttpDelete("delete")]
+        public ActionResult MarkRideDeleted([FromQuery(Name = "RouteId")] int routeId,
+            [FromQuery(Name = "UserId")] int userId)
+        {
+            var dbase = new DBManager();
+            var cmd = new MySqlCommand("DELETE FROM eventuser WHERE route_id=@id AND user_id=@user_id");
+            cmd.Parameters.AddWithValue("@id", routeId);
+            cmd.Parameters.AddWithValue("@user_id", userId);
+            dbase.InsertCommand(cmd);
+            dbase.CloseConnection();
+            return Ok();
+        }
     }
 }
