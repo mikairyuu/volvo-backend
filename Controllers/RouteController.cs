@@ -32,7 +32,8 @@ namespace volvo_backend.Controllers
                     Distance = reader.GetInt32("route_distance"),
                     Title = reader.GetString("route_name"),
                     Description = reader.GetString("route_description"),
-                    LastUsedAtTS = DateTime.SpecifyKind(reader.GetMySqlDateTime("route_last_date").Value, DateTimeKind.Utc).ToTimestamp().ToString()
+                    LastUsedAtTS = ((DateTimeOffset) reader.GetMySqlDateTime("route_last_date").Value)
+                        .ToUnixTimeSeconds().ToString()
                 };
 
                 if (reader.GetBoolean("route_is_volvo"))
