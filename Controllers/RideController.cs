@@ -15,11 +15,16 @@ namespace volvo_backend.Controllers
         {
             RouteModel ride = null;
             var dbase = new DBManager();
-            var cmd = new MySqlCommand(
+            var cmd = new MySqlCommand("$SELECT * FROM eventuser where user_id = @id;");
+            cmd.Parameters.AddWithValue("@id", userId);
+            var reader = dbase.GetReader(cmd);
+            if (reader.Read()) return null;
+            dbase.CloseReader();
+            cmd = new MySqlCommand(
                 $"select * from routetable where route_id =  @id;" +
                 $"update routetable Set route_visited =route_visited+1 where route_id = @id ;");
             cmd.Parameters.AddWithValue("@id", routeId);
-            var reader = dbase.GetReader(cmd);
+            reader = dbase.GetReader(cmd);
             if (!reader.Read()) return BadRequest();
             ride = new RouteModel()
             {
