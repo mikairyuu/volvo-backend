@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using volvo_backend.Models;
@@ -9,59 +12,54 @@ namespace volvo_backend.Controllers
     [Route("[controller]")]
     public class RouteController : ControllerBase
     {
-        [HttpGet]
+        [HttpGet("get/all")]
         public ActionResult<RouteLists> GetAllRoutes()
         {
             var dbase = new DBManager();
-            var cmd = new MySqlCommand($"select * from routetable");
+            var cmd = new MySqlCommand("select * from routetable");
             var reader = dbase.GetReader(cmd);
-            var Routes = new RouteLists();
+            var routes = new RouteLists()
+            {
+                VolvoRoutes = new List<RouteModel>(),
+                CustomRoutes = new List<RouteModel>()
+            };
             while (reader.Read())
             {
-                if (reader.GetBoolean("isVolvo"))
-                    Routes.VolvoRoutes.Add(
-                        new Route()
-                        {
-                            Id = reader.GetInt32("route_id"),
-                            Img = reader.GetString("route_img"),
-                            Distance = reader.GetInt32("route_distance"),
-                            Title = reader.GetString("route_name"),
-                            Description = reader.GetString("route_description"),
-                            LastUsedDate = reader.GetString("route_last_date")
-                        });
-                else
-                    Routes.CustomRoutes.Add(
-                        new Route()
-                        {
-                            Id = reader.GetInt32("route_id"),
-                            Img = reader.GetString("route_img"),
-                            Distance = reader.GetInt32("route_distance"),
-                            Title = reader.GetString("route_name"),
-                            Description = reader.GetString("route_description"),
-                            LastUsedDate = reader.GetString("route_last_date")
-                        });
-            }
-            return Routes;
-        }
-        [HttpGet]
-        public ActionResult<Route> GetRouteById([FromQuery(Name = "RouteId")] int RouteId)
-        {
-            var dbase = new DBManager();
-            var cmd = new MySqlCommand($"select * from routetable where route_id = @id");
-            cmd.Parameters.AddWithValue("@id", RouteId);
-            var reader = dbase.GetReader(cmd);
-            if (reader.Read())
-                return new Route()
+                var routeModel = new RouteModel
                 {
                     Id = reader.GetInt32("route_id"),
                     Img = reader.GetString("route_img"),
                     Distance = reader.GetInt32("route_distance"),
                     Title = reader.GetString("route_name"),
                     Description = reader.GetString("route_description"),
-                    LastUsedDate = reader.GetString("route_last_date")
+                    LastUsedAtTS = DateTime.SpecifyKind(reader.GetMySqlDateTime("route_last_date").Value, DateTimeKind.Utc).ToTimestamp().ToString()
                 };
-            return null;
 
+                if (reader.GetBoolean("route_is_volvo"))
+                    routes.VolvoRoutes.Add(routeModel);
+                else
+                    routes.CustomRoutes.Add(routeModel);
+            }
+
+            dbase.Close();
+            return routes;
+        }
+
+        [HttpGet("get/path")]
+        public ActionResult<PathModel> GetPathByRouteId([FromQuery(Name = "RouteId")] int routeId)
+        {
+            PathModel path;
+            try
+            {
+                var file = System.IO.File.OpenText($"Routes/route{routeId}.json");
+                path = new PathModel {Path = file.ReadToEnd()};
+            }
+            catch (Exception)
+            {
+                return NotFound(); //TODO: Determine whether it's a good idea
+            }
+
+            return path;
         }
     }
 }
