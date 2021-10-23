@@ -27,6 +27,7 @@ namespace volvo_backend.Services
                     Img = reader.GetString("Img")
                 });
             }
+
             dbase.CloseConnection();
             return userList;
         }
@@ -53,11 +54,15 @@ namespace volvo_backend.Services
             reader.Read();
             var Ride = new RideCreation()
             {
-                userList = new List<UserInfo>() {
-                    new() {
+                userList = new List<UserInfo>()
+                {
+                    new()
+                    {
                         Id = ride.UserId,
                         Name = reader.GetString("username"),
-                        Img = reader.GetString("Img") } },
+                        Img = reader.GetString("Img")
+                    }
+                },
                 RideId = lobbyId,
                 RouteId = ride.RouteId
             };
@@ -65,7 +70,5 @@ namespace volvo_backend.Services
             dbase.CloseConnection();
             return Ride;
         }
-
-
     }
 }

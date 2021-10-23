@@ -11,21 +11,17 @@ namespace volvo_backend.Controllers
     [Route("ride")]
     public class RideController : ControllerBase
     {
-        [HttpGet("get")]
-        public ActionResult<Ride> GetRideById([FromQuery(Name = "RideId")] int rideId)
+        [HttpGet("join")]
+        public ActionResult<Ride> JoinRideById([FromQuery(Name = "RideId")] int rideId, [FromQuery(Name = "UserId")] int userId)
         {
             var ride = new Ride();
             var dbase = new DBManager();
             var cmd = new MySqlCommand($"select * from eventtable where event_id = @id");
             cmd.Parameters.AddWithValue("@id", rideId);
             var reader = dbase.GetReader(cmd);
-            if (!reader.Read())
-            {
-                return null;
-            }
+            if (!reader.Read()) return null;
             var routeId = reader.GetInt32("route_id");
             dbase.CloseReader();
-            ride.userList = Service.GetUsersByRideId(rideId);
             cmd = new MySqlCommand($"select * from routetable where route_id =  @id");
             cmd.Parameters.AddWithValue("@id", routeId);
             reader = dbase.GetReader(cmd);
@@ -44,14 +40,5 @@ namespace volvo_backend.Controllers
             return ride;
         }
 
-        [HttpPost("create")]
-        public ActionResult<RideCreation> CreateRide([Bind("description,userid,routeid")] RideApplication ride)
-        {
-            if (ride == null)
-                return BadRequest();
-            var createdLobby = Service.CreateRide(ride);
-            if (createdLobby != null) return createdLobby;
-            return NotFound();
-        }
     }
 }
