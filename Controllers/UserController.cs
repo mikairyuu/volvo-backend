@@ -27,7 +27,7 @@ namespace volvo_backend.Controllers
                 list.Add(new RouteModel
                 {
                     Id = reader.GetInt32("route_id"),
-                    Img = reader.GetString("route_img"),
+                    Img = new List<string> {reader.GetString("route_img")},
                     Distance = reader.GetInt32("route_distance"),
                     Title = reader.GetString("route_name"),
                     Description = reader.GetString("route_description"),

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace volvo_backend.Models
@@ -11,7 +12,7 @@ namespace volvo_backend.Models
     public class RouteModel
     {
         public int Id { get; set; }
-        public string Img { get; set; }
+        public List<String> Img { get; set; }
         public int Distance { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }

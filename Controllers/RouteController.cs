@@ -22,7 +22,7 @@ namespace volvo_backend.Controllers
             var routeModel = new RouteModel
             {
                 Id = reader.GetInt32("route_id"),
-                Img = reader.GetString("route_img"),
+                Img = new List<string> {reader.GetString("route_img")},
                 Distance = reader.GetInt32("route_distance"),
                 Title = reader.GetString("route_name"),
                 Description = reader.GetString("route_description"),
@@ -50,7 +50,7 @@ namespace volvo_backend.Controllers
                 var routeModel = new RouteModel
                 {
                     Id = reader.GetInt32("route_id"),
-                    Img = reader.GetString("route_img"),
+                    Img = new List<string> {reader.GetString("route_img")},
                     Distance = reader.GetInt32("route_distance"),
                     Title = reader.GetString("route_name"),
                     Description = reader.GetString("route_description"),
@@ -85,7 +85,7 @@ namespace volvo_backend.Controllers
         //
         //     return path;
         // }
-        
+
         [HttpGet("get/detail")]
         public ActionResult<PathModel> GetRouteFeatures([FromQuery(Name = "id")] int id)
         {
@@ -114,6 +114,7 @@ namespace volvo_backend.Controllers
                     Title = reader.GetString("title")
                 });
             }
+
             return path;
         }
     }
