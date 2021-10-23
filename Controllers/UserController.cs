@@ -45,7 +45,7 @@ namespace volvo_backend.Controllers
             var result = new List<UserInfo>();
             var dbase = new DBManager();
             var reader = dbase.GetReader(new MySqlCommand(
-                "select usertable.full_name,usertable.Img,usertable.user_id from usertable " +
+                "select usertable.full_name,usertable.Img,usertable.user_id,T.score from usertable " +
                 "right join (select * from userstats order by score limit 10) AS T on usertable.user_id=T.user_id"));
             while (reader.Read())
             {
@@ -53,7 +53,8 @@ namespace volvo_backend.Controllers
                 {
                     Id = reader.GetInt32("user_id"),
                     Img = reader.GetString("Img"),
-                    Name = reader.GetString("full_name")
+                    Name = reader.GetString("full_name"),
+                    Score = reader.GetInt32("score")
                 });
             }
 
