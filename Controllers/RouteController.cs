@@ -69,20 +69,51 @@ namespace volvo_backend.Controllers
             return routes;
         }
 
-        [HttpGet("get/path")]
-        public ActionResult<PathModel> GetPathByRouteId([FromQuery(Name = "RouteId")] int routeId)
+        // [HttpGet("get/path")]
+        // public ActionResult<PathModel> GetPathByRouteId([FromQuery(Name = "RouteId")] int routeId)
+        // {
+        //     PathModel path;
+        //     try
+        //     {
+        //         var file = System.IO.File.OpenText($"Routes/route{routeId}.json");
+        //         path = new PathModel {Path = file.ReadToEnd()};
+        //     }
+        //     catch (Exception)
+        //     {
+        //         return NotFound(); //TODO: Determine whether it's a good idea
+        //     }
+        //
+        //     return path;
+        // }
+        
+        [HttpGet("get/detail")]
+        public ActionResult<PathModel> GetRouteFeatures([FromQuery(Name = "id")] int id)
         {
-            PathModel path;
+            var path = new PathModel();
             try
             {
-                var file = System.IO.File.OpenText($"Routes/route{routeId}.json");
-                path = new PathModel {Path = file.ReadToEnd()};
+                var file = System.IO.File.OpenText($"Routes/route{id}.json");
+                path.Path = file.ReadToEnd();
             }
             catch (Exception)
             {
                 return NotFound(); //TODO: Determine whether it's a good idea
             }
 
+            path.partnerOffers = new List<PartnerOffer>();
+            var dbase = new DBManager();
+            var cmd = new MySqlCommand("select address,discount,title from routefeatures where route_id=@id");
+            cmd.Parameters.AddWithValue("@id", id);
+            var reader = dbase.GetReader(cmd);
+            while (reader.Read())
+            {
+                path.partnerOffers.Add(new PartnerOffer
+                {
+                    Address = reader.GetString("address"),
+                    Discount = reader.GetString("discount"),
+                    Title = reader.GetString("title")
+                });
+            }
             return path;
         }
     }
