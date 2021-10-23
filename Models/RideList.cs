@@ -10,8 +10,14 @@ namespace volvo_backend.Models
 
     public class RideApplication
     {
-        public string Title { get; set; }
+        public int RouteId { get; set; }
         public string Description { get; set; }
-        public string CreatorToken { get; set; }
+        public int UserId { get; set; }
+    }
+    public class RideCreation
+    {
+        public List<UserInfo> userList { get; set; }
+        public int RideId { get; set; }
+        public int RouteId { get; set; }
     }
 }

@@ -45,9 +45,12 @@ namespace volvo_backend.Controllers
         }
 
         [HttpPost("create")]
-        public ActionResult<Ride> GetRideById([Bind("RideId")] RideApplication ride)
+        public ActionResult<RideCreation> CreateRide([Bind("description,userid,routeid")] RideApplication ride)
         {
-            //TODO
+            if (ride == null)
+                return BadRequest();
+            var createdLobby = Service.CreateRide(ride);
+            if (createdLobby != null) return createdLobby;
             return NotFound();
         }
     }
