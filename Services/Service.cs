@@ -26,7 +26,7 @@ namespace volvo_backend.Services
                     Img = reader.GetString("Img")
                 });
             }
-            dbase.Close();
+            dbase.CloseConnection();
             return userList;
         }
     }

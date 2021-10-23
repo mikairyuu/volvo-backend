@@ -42,7 +42,7 @@ namespace volvo_backend.Controllers
                     routes.CustomRoutes.Add(routeModel);
             }
 
-            dbase.Close();
+            dbase.CloseConnection();
             return routes;
         }
 

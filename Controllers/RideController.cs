@@ -24,7 +24,7 @@ namespace volvo_backend.Controllers
                 return null;
             }
             var routeId = reader.GetInt32("route_id");
-            dbase.Close();
+            dbase.CloseReader();
             ride.userList = Service.GetUsersByRideId(rideId);
             cmd = new MySqlCommand($"select * from routetable where route_id =  @id");
             cmd.Parameters.AddWithValue("@id", routeId);
@@ -40,7 +40,7 @@ namespace volvo_backend.Controllers
                     LastUsedAtTS = ((DateTimeOffset) reader.GetMySqlDateTime("route_last_date").Value)
                         .ToUnixTimeSeconds().ToString()
                 };
-            dbase.Close();
+            dbase.CloseConnection();
             return ride;
         }
     }

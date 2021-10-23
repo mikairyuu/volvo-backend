@@ -30,11 +30,16 @@ namespace volvo_backend.Utils
             cmd.ExecuteNonQuery();
             cmd.Dispose();
         }
-
-        public void Close()
+        
+        public void CloseReader()
         {
-            _mySqlConnection.Close();
             _cachedReader?.Close();
+        }
+
+        public void CloseConnection()
+        {
+            _cachedReader?.Close();
+            _mySqlConnection.Close();
         }
     }
 }
