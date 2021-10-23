@@ -13,7 +13,6 @@ namespace volvo_backend.Controllers
         public ActionResult JoinRideById([FromQuery(Name = "RouteId")] int routeId,
             [FromQuery(Name = "UserId")] int userId)
         {
-            RouteModel ride = null;
             var dbase = new DBManager();
             var cmd = new MySqlCommand($"SELECT * FROM eventuser where user_id = @id;");
             cmd.Parameters.AddWithValue("@id", userId);
@@ -23,9 +22,7 @@ namespace volvo_backend.Controllers
             cmd = new MySqlCommand(
                 $"update routetable Set route_visited =route_visited+1 where route_id = @id ;");
             cmd.Parameters.AddWithValue("@id", routeId);
-            reader = dbase.GetReader(cmd);
-            if (!reader.Read()) return BadRequest();
-            dbase.CloseReader();
+            dbase.InsertCommand(cmd);
             cmd = new MySqlCommand(
                 $"INSERT INTO eventuser(user_id, route_id) VALUES (@user_id,@route_id);");
             cmd.Parameters.AddWithValue("@route_id", routeId);
