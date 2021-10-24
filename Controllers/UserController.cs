@@ -19,7 +19,7 @@ namespace volvo_backend.Controllers
             var cmd = new MySqlCommand(
                 "SELECT * FROM ( SELECT `route_id` FROM `eventuser` WHERE user_id = @id ) " +
                 "AS fr JOIN routetable on routetable.route_id = fr.route_id " +
-                "JOIN imagetable on imagetable.route_id=fr.route_id");
+                "JOIN imagetable on imagetable.route_id=fr.route_id order by routetable.route_id");
             cmd.Parameters.AddWithValue("@id", userId);
             var reader = dbase.GetReader(cmd);
             var list = new List<RouteModel>();

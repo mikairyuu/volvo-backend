@@ -39,7 +39,7 @@ namespace volvo_backend.Controllers
         public ActionResult<RouteLists> GetAllRoutes()
         {
             var dbase = new DBManager();
-            var cmd = new MySqlCommand("SELECT * FROM routetable JOIN imagetable on imagetable.route_id = routetable.route_id");
+            var cmd = new MySqlCommand("SELECT * FROM routetable JOIN imagetable on imagetable.route_id = routetable.route_id order by routetable.route_id");
             var reader = dbase.GetReader(cmd);
             var routes = new RouteLists
             {
