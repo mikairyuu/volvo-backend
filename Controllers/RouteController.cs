@@ -19,22 +19,18 @@ namespace volvo_backend.Controllers
                 "SELECT * FROM ( SELECT * FROM routetable WHERE route_id = @routeId  ) AS fr JOIN imagetable on imagetable.route_id = fr.route_id");
             cmd.Parameters.AddWithValue("@routeId", routeId);
             var reader = dbase.GetReader(cmd);
-            RouteModel routeModel = null;
-            if (reader.Read())
+            if (!reader.Read()) return null;
+            var routeModel = new RouteModel
             {
-                routeModel = new RouteModel()
-                {
-                    Id = reader.GetInt32("route_id"),
-                    Img = new List<string> { reader.GetString("Img") },
-                    Distance = reader.GetInt32("route_distance"),
-                    Title = reader.GetString("route_name"),
-                    Description = reader.GetString("route_description"),
-                    UseCount = reader.GetInt32("route_visited"),
-                    LastUsedAtTS = ((DateTimeOffset)reader.GetMySqlDateTime("route_last_date").Value)
-                    .ToUnixTimeSeconds().ToString()
-                };
-                while (reader.Read()) routeModel.Img.Add(reader.GetString("Img"));
-            }
+                Id = reader.GetInt32("route_id"),
+                Img = new List<string> { reader.GetString("Img") },
+                Volvos = reader.GetInt32("route_distance"),
+                Title = reader.GetString("route_name"),
+                Description = reader.GetString("route_description"),
+                UseCount = reader.GetInt32("route_visited"),
+                IsParticipant = reader.GetBoolean("route_is_volvo")
+            };
+            while (reader.Read()) routeModel.Img.Add(reader.GetString("Img"));
             return routeModel;
         }
 
@@ -45,7 +41,7 @@ namespace volvo_backend.Controllers
             var dbase = new DBManager();
             var cmd = new MySqlCommand("SELECT * FROM routetable JOIN imagetable on imagetable.route_id = routetable.route_id");
             var reader = dbase.GetReader(cmd);
-            var routes = new RouteLists()
+            var routes = new RouteLists
             {
                 VolvoRoutes = new List<RouteModel>(),
                 CustomRoutes = new List<RouteModel>()
@@ -60,12 +56,11 @@ namespace volvo_backend.Controllers
                     {
                         Id = reader.GetInt32("route_id"),
                         Img = new List<string> { reader.GetString("Img") },
-                        Distance = reader.GetInt32("route_distance"),
+                        Volvos = reader.GetInt32("route_distance"),
                         Title = reader.GetString("route_name"),
                         Description = reader.GetString("route_description"),
                         UseCount = reader.GetInt32("route_visited"),
-                        LastUsedAtTS = ((DateTimeOffset)reader.GetMySqlDateTime("route_last_date").Value)
-                            .ToUnixTimeSeconds().ToString()
+                        IsParticipant = reader.GetBoolean("route_is_volvo")
                     };
 
                     if (reader.GetBoolean("route_is_volvo"))
@@ -76,7 +71,6 @@ namespace volvo_backend.Controllers
                 else
                     routeModel.Img.Add(reader.GetString("Img"));
                 prevId = reader.GetInt32("route_id");
-
             }
 
             dbase.CloseConnection();
@@ -116,7 +110,7 @@ namespace volvo_backend.Controllers
 
             path.partnerOffers = new List<PartnerOffer>();
             var dbase = new DBManager();
-            var cmd = new MySqlCommand("select address,discount,title from routefeatures where route_id=@id");
+            var cmd = new MySqlCommand("select * from routefeatures where route_id=@id");
             cmd.Parameters.AddWithValue("@id", id);
             var reader = dbase.GetReader(cmd);
             while (reader.Read())
@@ -125,10 +119,26 @@ namespace volvo_backend.Controllers
                 {
                     Address = reader.GetString("address"),
                     Discount = reader.GetString("discount"),
-                    Title = reader.GetString("title")
+                    Title = reader.GetString("title"),
+                    Img = reader.GetString("Img")
                 });
             }
-
+            
+            dbase.CloseReader();
+            cmd = new MySqlCommand("" +
+                                       "SELECT * FROM ( SELECT * FROM routetable WHERE route_id = @routeId  ) AS fr JOIN imagetable on imagetable.route_id = fr.route_id");
+            cmd.Parameters.AddWithValue("@routeId", id);
+            reader = dbase.GetReader(cmd);
+            reader.Read();
+            path.Id = reader.GetInt32("route_id");
+            path.Img = new List<string> {reader.GetString("Img")};
+            path.Volvos = reader.GetInt32("route_distance");
+            path.Title = reader.GetString("route_name");
+            path.Description = reader.GetString("route_description");
+            path.UseCount = reader.GetInt32("route_visited");
+            path.IsParticipant = reader.GetBoolean("route_is_volvo");
+            path.Distance = reader.GetInt32("route_distance");
+            while (reader.Read()) path.Img.Add(reader.GetString("Img"));
             return path;
         }
     }

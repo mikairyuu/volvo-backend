@@ -31,15 +31,14 @@ namespace volvo_backend.Controllers
                     {
                         Id = reader.GetInt32("route_id"),
                         Img = new List<string> { reader.GetString("Img") },
-                        Distance = reader.GetInt32("route_distance"),
+                        Volvos = reader.GetInt32("route_distance"),
                         Title = reader.GetString("route_name"),
                         Description = reader.GetString("route_description"),
                         UseCount = reader.GetInt32("route_visited"),
-                        LastUsedAtTS = ((DateTimeOffset)reader.GetMySqlDateTime("route_last_date").Value)
-                            .ToUnixTimeSeconds().ToString()
+                        IsParticipant = reader.GetBoolean("route_is_volvo")
                     });
                 else
-                    list[list.Count - 1].Img.Add(reader.GetString("Img"));
+                    list[^1].Img.Add(reader.GetString("Img"));
                 prevId = reader.GetInt32("route_id");
 
 
