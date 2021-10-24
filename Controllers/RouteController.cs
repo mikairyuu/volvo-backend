@@ -16,20 +16,25 @@ namespace volvo_backend.Controllers
         public ActionResult<RouteModel> GetRoute([FromQuery(Name = "RouteId")] int routeId)
         {
             var dbase = new DBManager();
-            var cmd = new MySqlCommand("select * from routetable where route_id=@routeId");
+            var cmd = new MySqlCommand("" +
+                "SELECT * FROM ( SELECT * FROM routetable WHERE route_id = @routeId  ) AS fr JOIN imagetable on imagetable.route_id = fr.route_id");
             cmd.Parameters.AddWithValue("@routeId", routeId);
             var reader = dbase.GetReader(cmd);
-            var routeModel = new RouteModel
-            {
-                Id = reader.GetInt32("route_id"),
-                Img = new List<string> {reader.GetString("route_img")},
+            RouteModel routeModel = null;
+            if (reader.Read()) {
+                routeModel = new RouteModel()
+                {
+                    Id = reader.GetInt32("route_id"),
+                Img = new List<string> { reader.GetString("Img") },
                 Distance = reader.GetInt32("route_distance"),
                 Title = reader.GetString("route_name"),
                 Description = reader.GetString("route_description"),
                 UseCount = reader.GetInt32("route_visited"),
-                LastUsedAtTS = ((DateTimeOffset) reader.GetMySqlDateTime("route_last_date").Value)
+                LastUsedAtTS = ((DateTimeOffset)reader.GetMySqlDateTime("route_last_date").Value)
                     .ToUnixTimeSeconds().ToString()
-            };
+                };
+                while (reader.Read()) routeModel.Img.Add(reader.GetString("Img"));
+            }
             return routeModel;
         }
 
