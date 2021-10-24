@@ -40,6 +40,9 @@ namespace volvo_backend.Controllers
                     });
                 else
                     list[list.Count - 1].Img.Add(reader.GetString("Img"));
+                prevId = reader.GetInt32("route_id");
+
+
             }
             dbase.CloseConnection();
 
